@@ -12,7 +12,7 @@ type BookShelf struct {
 	Last  int
 }
 
-func (bs BookShelf) GetBookAt(idx int) *Book {
+func (bs *BookShelf) GetBookAt(idx int) *Book {
 	return bs.Books[idx]
 }
 
@@ -21,13 +21,13 @@ func (bs *BookShelf) AppendBook(book *Book) {
 	bs.Last++
 }
 
-func (bs BookShelf) GetLength() int {
+func (bs *BookShelf) GetLength() int {
 	return bs.Last
 }
 
-func (bs BookShelf) Iterator() Iterator {
+func (bs *BookShelf) Iterator() Iterator {
 	return &BookShelfIterator{
-		BookShelf: bs,
+		BookShelf: *bs,
 		idx:       0,
 	}
 }
@@ -46,7 +46,7 @@ type BookShelfIterator struct {
 	idx int
 }
 
-func (i BookShelfIterator) HasNext() bool {
+func (i *BookShelfIterator) HasNext() bool {
 	if i.idx < i.BookShelf.GetLength() {
 		return true
 	} else {
