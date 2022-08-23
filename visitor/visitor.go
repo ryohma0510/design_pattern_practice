@@ -6,22 +6,17 @@ import "fmt"
 type DirEntryInterface interface {
 	Name() string
 	Size() int
-	Add(dirEntry DirEntryInterface)
 	String() string
-	acceptInterface
+	Accept(visitor VisitInterface) string
 }
 
 type VisitInterface interface {
-	Visit(entry DirEntryInterface) string
-}
-
-type acceptInterface interface {
-	Accept(visitor VisitInterface) string
+	VisitFile(file *File) string
+	VisitDirectory(directory *Directory) string
 }
 
 // File はAcceptInterfaceを実装している
 type File struct {
-	DirEntryInterface
 	name string
 	size int
 }
@@ -42,13 +37,13 @@ func (f File) String() string {
 	return fmt.Sprintf("%s (%d)", f.Name(), f.Size())
 }
 
+// Accept には具体的な処理を書かずに、Visitorに具体的な処理を記述することで、データ構造と処理を分離することができる
 func (f File) Accept(visitor VisitInterface) string {
-	return visitor.Visit(f)
+	return visitor.VisitFile(&f)
 }
 
 // Directory はAcceptInterfaceを実装している
 type Directory struct {
-	DirEntryInterface
 	name    string
 	entries []DirEntryInterface
 }
@@ -84,26 +79,27 @@ func (d *Directory) String() string {
 }
 
 func (d *Directory) Accept(visitor VisitInterface) string {
-	return visitor.Visit(d)
+	return visitor.VisitDirectory(d)
 }
 
+// ListVisitor は具体的な処理を実行する
 type ListVisitor struct {
 	currentDir string
 }
 
-func (l *ListVisitor) Visit(entry DirEntryInterface) string {
-	// これで分けるの微妙な気がするが、一度書籍のJavaと同じ雰囲気で実装してみる
-	result := fmt.Sprintf("%s/%s", l.currentDir, entry)
+func (l *ListVisitor) VisitFile(file *File) string {
+	return fmt.Sprintf("%s/%s\n", l.currentDir, file)
+}
 
-	// ディレクトリの場合は下層を再起的にAcceptする
-	if dir, ok := entry.(*Directory); ok {
-		saveDir := l.currentDir
-		l.currentDir = fmt.Sprintf("%s/%s", l.currentDir, dir.Name())
-		for _, innerEntry := range dir.Entries() {
-			innerEntry.Accept(l)
-		}
-		l.currentDir = saveDir
+func (l *ListVisitor) VisitDirectory(directory *Directory) string {
+	result := fmt.Sprintf("%s/%s\n", l.currentDir, directory)
+
+	saveDir := l.currentDir
+	l.currentDir = fmt.Sprintf("%s/%s", l.currentDir, directory.Name())
+	for _, innerEntry := range directory.Entries() {
+		result += innerEntry.Accept(l)
 	}
+	l.currentDir = saveDir
 
 	return result
 }

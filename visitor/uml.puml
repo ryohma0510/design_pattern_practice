@@ -1,0 +1,50 @@
+@startuml
+namespace visitor {
+    interface DirEntryInterface  {
+        + Name() string
+        + Size() int
+        + String() string
+        + Accept(visitor VisitInterface) string
+
+    }
+    class Directory << (S,Aquamarine) >> {
+        - name string
+        - entries []DirEntryInterface
+
+        + Entries() []DirEntryInterface
+        + Name() string
+        + Size() int
+        + Add(dirEntry DirEntryInterface) 
+        + String() string
+        + Accept(visitor VisitInterface) string
+
+    }
+    class File << (S,Aquamarine) >> {
+        - name string
+        - size int
+
+        + Name() string
+        + Size() int
+        + String() string
+        + Accept(visitor VisitInterface) string
+
+    }
+    class ListVisitor << (S,Aquamarine) >> {
+        - currentDir string
+
+        + VisitFile(file *File) string
+        + VisitDirectory(directory *Directory) string
+
+    }
+    interface VisitInterface  {
+        + VisitFile(file *File) string
+        + VisitDirectory(directory *Directory) string
+
+    }
+}
+
+"visitor.DirEntryInterface" <|-- "visitor.Directory"
+"visitor.DirEntryInterface" <|-- "visitor.File"
+"visitor.VisitInterface" <|-- "visitor.ListVisitor"
+
+@enduml
