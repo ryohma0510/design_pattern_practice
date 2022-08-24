@@ -1,0 +1,54 @@
+@startuml
+namespace chain_of_responsibility {
+    class DefaultSupport << (S,Aquamarine) >> {
+        - name string
+        - next SupportInterface
+
+        - done(trouble Trouble) string
+        - fail(trouble Trouble) string
+
+        + SetNext(next SupportInterface) 
+        + Support(callerSupport SupportInterface, trouble Trouble) string
+
+    }
+    class LimitSupport << (S,Aquamarine) >> {
+        - limit int
+
+        + Resolve(trouble Trouble) bool
+
+    }
+    class NoSupport << (S,Aquamarine) >> {
+        + Resolve(trouble Trouble) bool
+
+    }
+    class OddSupport << (S,Aquamarine) >> {
+        + Resolve(trouble Trouble) bool
+
+    }
+    class SpecialSupport << (S,Aquamarine) >> {
+        - number int
+
+        + Resolve(trouble Trouble) bool
+
+    }
+    interface SupportInterface  {
+        + Support(callerSupport SupportInterface, trouble Trouble) string
+        + SetNext(support SupportInterface) 
+        + Resolve(trouble Trouble) bool
+
+    }
+    class Trouble << (S,Aquamarine) >> {
+        - number int
+
+        + Number() int
+        + String() string
+
+    }
+}
+"chain_of_responsibility.DefaultSupport" *-- "chain_of_responsibility.LimitSupport"
+"chain_of_responsibility.DefaultSupport" *-- "chain_of_responsibility.NoSupport"
+"chain_of_responsibility.DefaultSupport" *-- "chain_of_responsibility.OddSupport"
+"chain_of_responsibility.DefaultSupport" *-- "chain_of_responsibility.SpecialSupport"
+
+
+@enduml
